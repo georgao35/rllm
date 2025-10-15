@@ -49,7 +49,6 @@ class ALFTWEnv(BaseEnv):
             wrappers=wrappers
         )
         self.env = textworld.gym.make(env_id)
-        print(self.env)
 
     def reset(self) -> tuple[dict, dict]:
         logger.debug("Resetting ALFTWEnv")

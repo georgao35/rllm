@@ -44,3 +44,16 @@ def save_trajectories(results, save_dir="./trajectories", filename="trajectories
     torch.save(results, save_path)
     print(f"Trajectories saved to {save_path}")
     return save_path
+
+
+def save_trajectories_jsonl(results, save_dir="./trajectories", filename="trajectories.jsonl"):
+    import json
+
+    os.makedirs(save_dir, exist_ok=True)
+    save_path = os.path.join(save_dir, filename)
+    with open(save_path, 'w') as f:
+        for trajectory in results:
+            json.dump(trajectory.to_dict(), f)
+            f.write('\n')
+    print(f"Trajectories saved to {save_path}")
+    return save_path

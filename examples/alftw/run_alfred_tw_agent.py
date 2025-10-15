@@ -8,9 +8,9 @@ from rllm.agents.frozenlake_agent import FrozenLakeAgent
 from rllm.data.dataset import DatasetRegistry
 from rllm.engine.agent_execution_engine import AgentExecutionEngine
 from rllm.environments.frozenlake.frozenlake import FrozenLakeEnv
-from rllm.utils import compute_pass_at_k, save_trajectories
 from rllm.agents.alfworld_tw_agent import ALFWORLDTWAgent
 from rllm.environments.alfworld.alfworld import ALFTWEnv
+from rllm.utils import compute_pass_at_k, save_trajectories, save_trajectories_jsonl
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -40,7 +40,7 @@ def main(config):
 
     n_parallel_agents = 4
 
-    model_name = "Qwen/Qwen3-4B"
+    model_name = "Qwen/Qwen3-1.7B"
 
     tokenizer = AutoTokenizer.from_pretrained(model_name)
 
@@ -74,12 +74,14 @@ def main(config):
         max_steps=20
     )
 
-    eval_ood = True
+    eval_ood = False
     tasks = load_alftw_data(eval_ood)
 
-    results = asyncio.run(engine.execute_tasks(tasks[:10]*2))
+    results = asyncio.run(engine.execute_tasks(tasks[:3]*2))
     compute_pass_at_k(results)
-    save_trajectories(results, filename=f"alfred_tw_trajectories-{'ood' if eval_ood else 'id'}.jsonl")
+    save_trajectories_jsonl(results, filename=f"alfred_tw_trajectories-{'ood' if eval_ood else 'id'}.jsonl")
+    from IPython import embed; embed()
+    return results
 
 
 if __name__ == "__main__":
