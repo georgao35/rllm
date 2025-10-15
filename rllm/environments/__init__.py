@@ -18,6 +18,7 @@ ENVIRONMENT_IMPORTS = [
     ("rllm.environments.frozenlake.frozenlake", "FrozenLakeEnv"),
     ("rllm.environments.swe.swe", "SWEEnv"),
     ("rllm.environments.code.competition_coding", "CompetitionCodingEnv"),
+    ("rllm.environments.alfworld.alfworld", "ALFTWEnv"),
 ]
 
 for module_path, class_name in ENVIRONMENT_IMPORTS:

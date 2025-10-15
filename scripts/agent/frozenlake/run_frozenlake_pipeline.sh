@@ -3,6 +3,7 @@ set -x
 export VLLM_ATTENTION_BACKEND=FLASH_ATTN
 export PYTORCH_CUDA_ALLOC_CONF="expandable_segments:False"
 export VLLM_USE_V1=0
+export HF_ENDPOINT="https://hf-mirror.com"
 
 # Find the directory where rllm package is located
 RLLM_DIR=$(python3 -c "import rllm; import os; print(os.path.dirname(os.path.dirname(rllm.__file__)))")
@@ -15,7 +16,7 @@ python3 -m rllm.trainer.verl.train_agent_ppo_pipeline \
     data.val_batch_size=128 \
     data.max_prompt_length=4096 \
     data.max_response_length=10240 \
-    actor_rollout_ref.model.path=Qwen/Qwen3-4B \
+    actor_rollout_ref.model.path=Qwen/Qwen3-0.6B \
     actor_rollout_ref.hybrid_engine=False \
     actor_rollout_ref.actor.optim.lr=1e-6 \
     actor_rollout_ref.model.use_remove_padding=True \
@@ -53,8 +54,8 @@ python3 -m rllm.trainer.verl.train_agent_ppo_pipeline \
     trainer.project_name='rllm-agent' \
     trainer.experiment_name='4b-frozenlake_agent-pipeline' \
     trainer.val_before_train=True \
-    trainer.n_gpus_per_node=8 \
-    trainer.n_training_gpus_per_node=4 \
+    trainer.n_gpus_per_node=2 \
+    trainer.n_training_gpus_per_node=2 \
     trainer.nnodes=1 \
     trainer.save_freq=40 \
     trainer.test_freq=10 \

@@ -18,7 +18,7 @@ Note that we don't combine the main with ray_trainer as ray_trainer is used by o
 import hydra
 import ray
 
-from rllm.trainer.env_agent_mappings import AGENT_CLASS_MAPPING, ENV_CLASS_MAPPING, setup_environment
+from rllm.trainer.env_agent_mappings import AGENT_CLASS_MAPPING, ENV_CLASS_MAPPING, WORKFLOW_CLASS_MAPPING
 from rllm.trainer.verl.agent_ppo_trainer_pipeline import PipelineAgentPPOTrainer
 
 # Local application imports
