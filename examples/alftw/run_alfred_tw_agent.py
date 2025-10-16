@@ -1,3 +1,4 @@
+import os
 import asyncio
 import hydra
 import logging
@@ -20,11 +21,11 @@ logging.basicConfig(
 
 
 def load_alftw_data(eval_ood=False):
-    if DatasetRegistry.dataset_exists("alftw", "eval_in_distribution"):
-        test_dataset = DatasetRegistry.load_dataset("alftw", "eval_in_distribution")
+    if DatasetRegistry.dataset_exists("alftw", "eval_out_of_distribution" if eval_ood else "eval_in_distribution"):
+        test_dataset = DatasetRegistry.load_dataset("alftw", "eval_out_of_distribution" if eval_ood else "eval_in_distribution")
         return test_dataset.get_data()
 
-    print("FrozenLake datasets not found. Preparing datasets...")
+    print("AlfTW datasets not found. Preparing datasets...")
     from prepare_alftw_data import prepare_alftw_data
 
     train_dataset, test_dataset = prepare_alftw_data(eval_ood=eval_ood, config_file="rllm/environments/alfworld/configs/config_tw.yaml")
@@ -38,9 +39,10 @@ def main(config):
 
     os.environ["TOKENIZERS_PARALLELISM"] = "true"
 
-    n_parallel_agents = 4
+    n_parallel_agents = int(os.getenv("N_PARALLEL_AGENTS", "8"))
 
-    model_name = "Qwen/Qwen3-1.7B"
+    model_name = os.getenv("MODEL_NAME", "Qwen/Qwen3-1.7B")
+    k = int(os.getenv("K", "1"))
 
     tokenizer = AutoTokenizer.from_pretrained(model_name)
 
@@ -71,16 +73,15 @@ def main(config):
         max_response_length=16384,
         max_prompt_length=4096,
         n_parallel_agents=n_parallel_agents,
-        max_steps=20
+        max_steps=50
     )
 
-    eval_ood = False
+    eval_ood = os.getenv("EVAL_OOD", "0").lower() in ["1", "true", "yes"]
     tasks = load_alftw_data(eval_ood)
 
-    results = asyncio.run(engine.execute_tasks(tasks[:3]*2))
+    results = asyncio.run(engine.execute_tasks(tasks*k))
     compute_pass_at_k(results)
-    save_trajectories_jsonl(results, filename=f"alfred_tw_trajectories-{'ood' if eval_ood else 'id'}.jsonl")
-    from IPython import embed; embed()
+    save_trajectories_jsonl(results, filename=f"alfred_tw_trajectories-{'ood' if eval_ood else 'id'}-{model_name.split('/')[-1]}.jsonl")
     return results
 
 
